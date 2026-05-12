@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontier Engineer Finder</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --ms-blue: #0078d4;
+    --ms-dark: #1b1b1b;
+    --ms-gray: #f3f2f1;
+    --ms-border: #e1dfdd;
+    --ms-green: #107c10;
+    --ms-orange: #d83b01;
+    --ms-red: #a80000;
+    --ms-text: #323130;
+    --ms-text-secondary: #605e5c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ms-text);
+    background: #faf9f8;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ms-dark);
+    color: #fff;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  header svg { flex-shrink: 0; }
+
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  header .subtitle {
+    font-size: 12px;
+    color: #b3b0ad;
+    margin-left: auto;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 24px;
+  }
+
+  /* Upload area */
+  .upload-area {
+    border: 2px dashed var(--ms-border);
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: var(--ms-blue);
+    background: #f0f6ff;
+  }
+
+  .upload-area h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .upload-area p {
+    font-size: 13px;
+    color: var(--ms-text-secondary);
+  }
+
+  .upload-area input[type="file"] { display: none; }
+
+  .upload-area .browse-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 20px;
+    background: var(--ms-blue);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .upload-area .browse-btn:hover { background: #106ebe; }
+
+  /* Summary bar */
+  .summary-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--ms-border);
+    border-radius: 6px;
+    padding: 14px 20px;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--ms-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .stat-card .value.green { color: var(--ms-green); }
+  .stat-card .value.blue { color: var(--ms-blue); }
+  .stat-card .value.orange { color: var(--ms-orange); }
+  .stat-card .value.red { color: var(--ms-red); }
+
+  /* Results grid */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 16px;
+  }
+
+  .results-grid .panel:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .panel {
+    background: #fff;
+    border: 1px solid var(--ms-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ms-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .panel-header .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #fff;
+  }
+
+  .badge.green { background: var(--ms-green); }
+  .badge.blue { background: var(--ms-blue); }
+  .badge.orange { background: var(--ms-orange); }
+
+  .panel-body {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--ms-gray);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--ms-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--ms-border);
+  }
+
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #f3f2f1;
+  }
+
+  tbody tr:hover { background: #f9f9f9; }
+
+  .empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--ms-text-secondary);
+    font-size: 13px;
+  }
+
+  /* Hidden state */
+  #results { display: none; }
+
+  /* Cert pills */
+  .cert-pill {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #fff4ce;
+    color: #8a6d00;
+    font-weight: 600;
+  }
+
+  /* File info */
+  .file-info {
+    font-size: 13px;
+    color: var(--ms-text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .file-info strong { color: var(--ms-text); }
+
+  /* Privacy note */
+  .privacy-note {
+    font-size: 11px;
+    color: var(--ms-text-secondary);
+    text-align: center;
+    margin-top: 16px;
+    padding: 8px;
+  }
+
+  .privacy-note svg {
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* Target certs list */
+  .target-certs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .target-certs .cert-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--ms-gray);
+    color: var(--ms-text-secondary);
+    border: 1px solid var(--ms-border);
+  }
+</style>
+</head>
+<body>
+<header>
+  <!-- Microsoft logo -->
+  <svg width="20" height="20" viewBox="0 0 21 21"><rect x="0" y="0" width="10" height="10" fill="#f25022"/><rect x="11" y="0" width="10" height="10" fill="#7fba00"/><rect x="0" y="11" width="10" height="10" fill="#00a4ef"/><rect x="11" y="11" width="10" height="10" fill="#ffb900"/></svg>
+  <h1>Frontier Engineer Finder</h1>
+  <span class="subtitle">Partner Center &middot; Trainings Analysis</span>
+</header>
+
+<div class="container">
+  <!-- Upload -->
+  <div class="upload-area" id="uploadArea">
+    <h2>Upload Trainings Report</h2>
+    <p>Drag &amp; drop your CSV or TSV file from Partner Center Insights, or click to browse.</p>
+    <button class="browse-btn" id="browseBtn">Choose File</button>
+    <input type="file" id="fileInput" accept=".csv,.tsv">
+    <div class="target-certs">
+      <span class="cert-tag">Azure AI Engineer Associate</span>
+      <span class="cert-tag">GitHub Copilot</span>
+      <span class="cert-tag">Agentic AI Business Solutions Architect</span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="file-info" id="fileInfo"></div>
+
+    <div class="summary-bar" id="summaryBar">
+      <div class="stat-card">
+        <div class="label">Training Activities</div>
+        <div class="value" id="statActivities">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Unique Learners</div>
+        <div class="value" id="statLearners">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">All 3 Certs</div>
+        <div class="value green" id="statAll3">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">2 of 3 Certs</div>
+        <div class="value blue" id="stat2of3">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">At Risk (6 mo)</div>
+        <div class="value orange" id="statAtRisk">-</div>
+      </div>
+    </div>
+
+    <div class="results-grid">
+      <!-- Table 1: All 3 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Learners with all 3 certifications</h3>
+          <span class="badge green" id="badgeAll3">0</span>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>Name</th><th>Corp Email</th></tr></thead>
+            <tbody id="tableAll3"></tbody>
+          </table>
+          <div class="empty-state" id="emptyAll3">No learners found</div>
+        </div>
+      </div>
+
+      <!-- Table 2: 2 of 3 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Learners with 2 of 3 certifications</h3>
+          <span class="badge blue" id="badge2of3">0</span>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>Name</th><th>Corp Email</th><th>Missing Certification</th></tr></thead>
+            <tbody id="table2of3"></tbody>
+          </table>
+          <div class="empty-state" id="empty2of3">No learners found</div>
+        </div>
+      </div>
+
+      <!-- Table 3: At Risk -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>At risk certifications <span style="font-weight:400;font-size:12px;color:var(--ms-text-secondary)">(expiring within 6 months)</span></h3>
+          <span class="badge orange" id="badgeAtRisk">0</span>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>Name</th><th>Corp Email</th><th>Certification</th><th>Expiration Date</th></tr></thead>
+            <tbody id="tableAtRisk"></tbody>
+          </table>
+          <div class="empty-state" id="emptyAtRisk">No at-risk certifications found</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="privacy-note">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+      Your file is processed entirely in your browser. No data is uploaded to any server or stored on disk.
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const TARGET_CERTS = [
+    'Microsoft Certified: Azure AI Engineer Associate',
+    'GitHub Copilot',
+    'Microsoft Certified: Agentic AI Business Solutions Architect'
+  ];
+
+  // DOM refs
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const resultsDiv = document.getElementById('results');
+  const fileInfo = document.getElementById('fileInfo');
+
+  // Upload interactions
+  browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+  uploadArea.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+  uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+      if (parsed.errors.length && parsed.data.length === 0) {
+        alert('Failed to parse file. Please check the format.');
+        return;
+      }
+      processData(parsed.data, file.name);
+    };
+    reader.readAsText(file);
+  }
+
+  function processData(rows, fileName) {
+    // Summary stats
+    const totalActivities = rows.length;
+    const uniqueLearners = new Set(rows.map(r => r.Email).filter(e => e && e.trim() !== '')).size;
+
+    // Filter for target certs, Active, Certification, and with valid Email
+    const filtered = rows.filter(r =>
+      TARGET_CERTS.includes(r.TrainingTitle) &&
+      r.ActivationStatus === 'Active' &&
+      r.TrainingType === 'Certification' &&
+      r.Email && r.Email.trim() !== ''
+    );
+
+    // Group by Email -> set of unique TrainingTitles
+    const learnerCerts = new Map(); // Email -> { titles: Set, row: first row }
+    for (const r of filtered) {
+      if (!learnerCerts.has(r.Email)) {
+        learnerCerts.set(r.Email, { titles: new Set(), row: r });
+      }
+      learnerCerts.get(r.Email).titles.add(r.TrainingTitle);
+    }
+
+    // Table 1: all 3
+    const all3 = [];
+    for (const [uid, data] of learnerCerts) {
+      if (data.titles.size === 3) {
+        all3.push({
+          name: `${(data.row.IndividualFirstName || '')} ${(data.row.IndividualLastName || '')}`.trim(),
+          email: data.row.CorpEmail || ''
+        });
+      }
+    }
+    all3.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Table 2: exactly 2
+    const twoOf3 = [];
+    for (const [uid, data] of learnerCerts) {
+      if (data.titles.size === 2) {
+        const name = `${(data.row.IndividualFirstName || '')} ${(data.row.IndividualLastName || '')}`.trim();
+        const email = data.row.CorpEmail || '';
+        for (const cert of TARGET_CERTS) {
+          if (!data.titles.has(cert)) {
+            twoOf3.push({ name, email, missing: cert });
+          }
+        }
+      }
+    }
+    twoOf3.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Table 3: at risk (expiring within 6 months from today)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cutoff = new Date(today);
+    cutoff.setMonth(cutoff.getMonth() + 6);
+
+    const atRisk = [];
+    for (const r of filtered) {
+      if (!r.ExpirationDate) continue;
+      const exp = new Date(r.ExpirationDate);
+      if (isNaN(exp.getTime())) continue;
+      exp.setHours(0, 0, 0, 0);
+      if (exp >= today && exp <= cutoff) {
+        atRisk.push({
+          name: `${(r.IndividualFirstName || '')} ${(r.IndividualLastName || '')}`.trim(),
+          email: r.CorpEmail || '',
+          cert: r.TrainingTitle,
+          expDate: exp
+        });
+      }
+    }
+    atRisk.sort((a, b) => a.expDate - b.expDate);
+
+    // Unique learners with 2 of 3
+    const unique2of3 = new Set(twoOf3.map(r => r.email)).size;
+
+    // Render
+    fileInfo.innerHTML = `File: <strong>${escapeHtml(fileName)}</strong>`;
+    document.getElementById('statActivities').textContent = totalActivities.toLocaleString();
+    document.getElementById('statLearners').textContent = uniqueLearners.toLocaleString();
+    document.getElementById('statAll3').textContent = all3.length;
+    document.getElementById('stat2of3').textContent = unique2of3;
+    document.getElementById('statAtRisk').textContent = atRisk.length;
+
+    renderTable('tableAll3', 'emptyAll3', 'badgeAll3', all3, r =>
+      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td>`
+    );
+
+    renderTable('table2of3', 'empty2of3', 'badge2of3', twoOf3, r =>
+      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td><span class="cert-pill">${escapeHtml(shortCert(r.missing))}</span></td>`,
+      unique2of3
+    );
+
+    renderTable('tableAtRisk', 'emptyAtRisk', 'badgeAtRisk', atRisk, r =>
+      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.cert))}</td><td>${formatDate(r.expDate)}</td>`
+    );
+
+    resultsDiv.style.display = 'block';
+    uploadArea.style.display = 'none';
+  }
+
+  function renderTable(tbodyId, emptyId, badgeId, data, rowFn, badgeCount) {
+    const tbody = document.getElementById(tbodyId);
+    const empty = document.getElementById(emptyId);
+    const badge = document.getElementById(badgeId);
+
+    badge.textContent = badgeCount !== undefined ? badgeCount : data.length;
+
+    if (data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = '';
+    } else {
+      empty.style.display = 'none';
+      tbody.innerHTML = data.map(r => `<tr>${rowFn(r)}</tr>`).join('');
+    }
+  }
+
+  function shortCert(str) {
+    return str.replace(/^Microsoft Certified:\s*/i, '');
+  }
+
+  function formatDate(d) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>
