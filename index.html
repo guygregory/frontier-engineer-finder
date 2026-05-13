@@ -340,7 +340,13 @@
         </div>
         <div class="panel-body">
           <table>
-            <thead><tr><th>Name</th><th>Corp Email</th><th>Missing Certification</th></tr></thead>
+            <thead>
+              <tr>
+                <th style="width: 120px;">Name</th>
+                <th>Corp Email</th>
+                <th>Missing Certification</th>
+              </tr>
+            </thead>
             <tbody id="table2of3"></tbody>
           </table>
           <div class="empty-state" id="empty2of3">No learners found</div>
@@ -371,11 +377,18 @@
 </div>
 
 <script>
+
 (function () {
   'use strict';
 
-  const TARGET_CERTS = [
+  // Azure AI certs (old and new)
+  const AZURE_AI_CERTS = [
     'Microsoft Certified: Azure AI Engineer Associate',
+    'Microsoft Certified: Azure AI Apps and Agents Developer Associate'
+  ];
+  // Logical certs for grouping
+  const TARGET_CERTS = [
+    'Azure AI',
     'GitHub Copilot',
     'Microsoft Certified: Agentic AI Business Solutions Architect'
   ];
@@ -421,27 +434,33 @@
     const totalActivities = rows.length;
     const uniqueLearners = new Set(rows.map(r => r.Email).filter(e => e && e.trim() !== '')).size;
 
-    // Filter for target certs, Active, Certification, and with valid Email
+    // Filter for target certs (Azure AI = either), Active, Certification, and with valid Email
     const filtered = rows.filter(r =>
-      TARGET_CERTS.includes(r.TrainingTitle) &&
+      ((AZURE_AI_CERTS.includes(r.TrainingTitle) || r.TrainingTitle === 'GitHub Copilot' || r.TrainingTitle === 'Microsoft Certified: Agentic AI Business Solutions Architect')) &&
       r.ActivationStatus === 'Active' &&
       r.TrainingType === 'Certification' &&
       r.Email && r.Email.trim() !== ''
     );
 
-    // Group by Email -> set of unique TrainingTitles
-    const learnerCerts = new Map(); // Email -> { titles: Set, row: first row }
-    for (const r of filtered) {
-      if (!learnerCerts.has(r.Email)) {
-        learnerCerts.set(r.Email, { titles: new Set(), row: r });
-      }
-      learnerCerts.get(r.Email).titles.add(r.TrainingTitle);
+    // Map TrainingTitle to logical cert bucket
+    function logicalCert(title) {
+      if (AZURE_AI_CERTS.includes(title)) return 'Azure AI';
+      return title;
     }
 
-    // Table 1: all 3
+    // Group by Email -> set of unique logical certs
+    const learnerCerts = new Map(); // Email -> { logicalCerts: Set, row: first row }
+    for (const r of filtered) {
+      if (!learnerCerts.has(r.Email)) {
+        learnerCerts.set(r.Email, { logicalCerts: new Set(), row: r });
+      }
+      learnerCerts.get(r.Email).logicalCerts.add(logicalCert(r.TrainingTitle));
+    }
+
+    // Table 1: all 3 logical certs
     const all3 = [];
     for (const [uid, data] of learnerCerts) {
-      if (data.titles.size === 3) {
+      if (data.logicalCerts.size === 3) {
         all3.push({
           name: `${(data.row.IndividualFirstName || '')} ${(data.row.IndividualLastName || '')}`.trim(),
           email: data.row.CorpEmail || ''
@@ -450,15 +469,20 @@
     }
     all3.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Table 2: exactly 2
+    // Table 2: exactly 2 logical certs
     const twoOf3 = [];
     for (const [uid, data] of learnerCerts) {
-      if (data.titles.size === 2) {
+      if (data.logicalCerts.size === 2) {
         const name = `${(data.row.IndividualFirstName || '')} ${(data.row.IndividualLastName || '')}`.trim();
         const email = data.row.CorpEmail || '';
         for (const cert of TARGET_CERTS) {
-          if (!data.titles.has(cert)) {
-            twoOf3.push({ name, email, missing: cert });
+          if (!data.logicalCerts.has(cert)) {
+            // If Azure AI is missing, always recommend the new cert only
+            if (cert === 'Azure AI') {
+              twoOf3.push({ name, email, missing: 'Microsoft Certified: Azure AI Apps and Agents Developer Associate' });
+            } else {
+              twoOf3.push({ name, email, missing: cert });
+            }
           }
         }
       }
