@@ -281,6 +281,14 @@
     <input type="file" id="fileInput" accept=".csv,.tsv">
   </div>
 
+  <!-- Helper text -->
+  <div id="helperText" style="margin-bottom: 20px; padding: 16px; background: #fff; border: 1px solid var(--ms-border); border-radius: 8px; font-size: 13px; color: var(--ms-text-secondary); line-height: 1.6; text-align: center;">
+    <p style="margin-bottom: 6px;"><strong style="color: var(--ms-text);">Unsure where to download the Trainings report?</strong></p>
+    <p style="margin-bottom: 4px;">Browse to <a href="https://partner.microsoft.com/en-us/dashboard/insights/analytics/downloadshub" target="_blank" rel="noopener noreferrer" style="color: var(--ms-blue);">Partner Center Insights | Downloads Hub</a></p>
+    <p style="margin-bottom: 4px;">Log into Partner Center as a <a href="https://learn.microsoft.com/partner-center/account-settings/permissions-overview#global-admin-role" target="_blank" rel="noopener noreferrer" style="color: var(--ms-blue);">Global Admin</a> user account</p>
+    <p>Create new report &gt; Membership &gt; Basic &gt; Trainings &gt; (Select all) &gt; Lifetime &gt; CSV &gt; Download now</p>
+  </div>
+
   <!-- Results -->
   <div id="results">
     <div class="file-info" id="fileInfo"></div>
@@ -506,6 +514,7 @@
 
     resultsDiv.style.display = 'block';
     uploadArea.style.display = 'none';
+    document.getElementById('helperText').style.display = 'none';
   }
 
   function renderTable(tbodyId, emptyId, badgeId, data, rowFn, badgeCount) {
