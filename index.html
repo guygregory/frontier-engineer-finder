@@ -161,12 +161,42 @@
     border-bottom: 1px solid var(--ms-border);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
   }
 
   .panel-header h3 {
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .panel-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .export-btn {
+    padding: 6px 12px;
+    background: #f3f2f1;
+    color: var(--ms-text);
+    border: 1px solid var(--ms-border);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .export-btn:hover {
+    background: #e8e6e1;
+    border-color: #d0ccc8;
+  }
+
+  .export-btn:active {
+    background: #d9d6cf;
+    border-color: #c0bbb3;
   }
 
   .panel-header .badge {
@@ -191,6 +221,10 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+  }
+
+  table.aligned-certs {
+    table-layout: fixed;
   }
 
   thead th {
@@ -323,8 +357,11 @@
       <!-- Table 1: All 3 -->
       <div class="panel">
         <div class="panel-header">
-          <h3>Learners with all 3 certification requirements</h3>
-          <span class="badge green" id="badgeAll3">0</span>
+          <div class="header-left">
+            <h3>Learners with all 3 certification requirements</h3>
+            <span class="badge green" id="badgeAll3">0</span>
+          </div>
+          <button class="export-btn" data-table-id="tableAll3" data-table-name="all-3-certs">Export to .csv</button>
         </div>
         <div class="panel-body">
           <table>
@@ -338,8 +375,11 @@
       <!-- Table 2: 2 of 3 -->
       <div class="panel">
         <div class="panel-header">
-          <h3>Learners with 2 of 3 certification requirements</h3>
-          <span class="badge blue" id="badge2of3">0</span>
+          <div class="header-left">
+            <h3>Learners with 2 of 3 certification requirements</h3>
+            <span class="badge blue" id="badge2of3">0</span>
+          </div>
+          <button class="export-btn" data-table-id="table2of3" data-table-name="2-of-3-certs">Export to .csv</button>
         </div>
         <div class="panel-body">
           <table>
@@ -359,11 +399,20 @@
       <!-- Table 3: 1 of 3 -->
       <div class="panel">
         <div class="panel-header">
-          <h3>Learners with 1 of 3 certification requirements</h3>
-          <span class="badge purple" id="badge1of3">0</span>
+          <div class="header-left">
+            <h3>Learners with 1 of 3 certification requirements</h3>
+            <span class="badge purple" id="badge1of3">0</span>
+          </div>
+          <button class="export-btn" data-table-id="table1of3" data-table-name="1-of-3-certs">Export to .csv</button>
         </div>
         <div class="panel-body">
-          <table>
+          <table class="aligned-certs">
+            <colgroup>
+              <col style="width: 22%;">
+              <col style="width: 33%;">
+              <col style="width: 28%;">
+              <col style="width: 17%;">
+            </colgroup>
             <thead><tr><th>Name</th><th>Corp Email</th><th>Certification</th><th>Expiration Date</th></tr></thead>
             <tbody id="table1of3"></tbody>
           </table>
@@ -374,11 +423,20 @@
       <!-- Table 4: At Risk -->
       <div class="panel">
         <div class="panel-header">
-          <h3>At risk certifications <span style="font-weight:400;font-size:12px;color:var(--ms-text-secondary)">(expiring within 6 months)</span></h3>
-          <span class="badge orange" id="badgeAtRisk">0</span>
+          <div class="header-left">
+            <h3>At risk certifications <span style="font-weight:400;font-size:12px;color:var(--ms-text-secondary)">(expiring within 6 months)</span></h3>
+            <span class="badge orange" id="badgeAtRisk">0</span>
+          </div>
+          <button class="export-btn" data-table-id="tableAtRisk" data-table-name="at-risk-certs">Export to .csv</button>
         </div>
         <div class="panel-body">
-          <table>
+          <table class="aligned-certs">
+            <colgroup>
+              <col style="width: 22%;">
+              <col style="width: 33%;">
+              <col style="width: 28%;">
+              <col style="width: 17%;">
+            </colgroup>
             <thead><tr><th>Name</th><th>Corp Email</th><th>Certification</th><th>Expiration Date</th></tr></thead>
             <tbody id="tableAtRisk"></tbody>
           </table>
@@ -419,6 +477,7 @@
   const fileInfo = document.getElementById('fileInfo');
 
   initTableSorting();
+  initExportButtons();
 
   // Upload interactions
   browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
@@ -583,8 +642,13 @@
     const tbody = document.getElementById(tbodyId);
     const empty = document.getElementById(emptyId);
     const badge = document.getElementById(badgeId);
+    const exportBtn = document.querySelector(`.export-btn[data-table-id="${tbodyId}"]`);
 
     badge.textContent = badgeCount !== undefined ? badgeCount : data.length;
+
+    if (exportBtn) {
+      exportBtn.style.display = data.length === 0 ? 'none' : '';
+    }
 
     if (data.length === 0) {
       tbody.innerHTML = '';
@@ -692,6 +756,88 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  function initExportButtons() {
+    const buttons = document.querySelectorAll('.export-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => exportTableToCSV(btn));
+    });
+  }
+
+  function exportTableToCSV(button) {
+    const tableId = button.getAttribute('data-table-id');
+    const tableName = button.getAttribute('data-table-name');
+    const tbody = document.getElementById(tableId);
+    const table = tbody.closest('table');
+    
+    if (!table) return;
+
+    // Get headers
+    const headers = [];
+    const headerCells = table.querySelectorAll('thead th');
+    headerCells.forEach(th => {
+      headers.push(th.textContent.trim());
+    });
+
+    // Get rows in current DOM order (respects sort)
+    const rows = [];
+    const bodyRows = tbody.querySelectorAll('tr');
+    bodyRows.forEach(tr => {
+      const row = [];
+      const cells = tr.querySelectorAll('td');
+      cells.forEach(td => {
+        row.push(td.textContent.trim());
+      });
+      rows.push(row);
+    });
+
+    // Generate CSV
+    const csv = generateCSV(headers, rows);
+
+    // Create download
+    const timestamp = getTimestamp();
+    const filename = `${tableName}_${timestamp}.csv`;
+    downloadCSV(csv, filename);
+  }
+
+  function generateCSV(headers, rows) {
+    const escapeField = (field) => {
+      // If field contains comma, quote, or newline, wrap in quotes and escape quotes
+      if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+        return '"' + field.replace(/"/g, '""') + '"';
+      }
+      return field;
+    };
+
+    // Build CSV with escaped fields
+    const headerLine = headers.map(escapeField).join(',');
+    const dataLines = rows.map(row => row.map(escapeField).join(','));
+    
+    return [headerLine, ...dataLines].join('\n');
+  }
+
+  function getTimestamp() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}-${hours}${minutes}${seconds}`;
+  }
+
+  function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 })();
 </script>

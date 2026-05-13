@@ -40,10 +40,11 @@ PARTNER_CITY = "Reading"
 PARTNER_COUNTRY = "UnitedKingdom"
 USER_COUNT = 1
 DEFAULT_OUTPUT = "SampleTrainings.csv"
-DEFAULT_ROW_COUNT = 40_000
+DEFAULT_ROW_COUNT = 42_102
 DEFAULT_FULL_TARGET_LEARNERS = 5
-DEFAULT_TWO_TARGET_LEARNERS = 100
-TODAY = date(2026, 5, 4)
+DEFAULT_TWO_TARGET_LEARNERS = 103
+DEFAULT_ONE_TARGET_LEARNERS = 1071
+TODAY = date.today()
 
 TARGET_CERT_TITLES = [
 	"Microsoft Certified: Azure AI Engineer Associate",
@@ -315,6 +316,12 @@ def add_target_cohorts(
 			if certification_index != missing_index:
 				add_target_certification_bundle(rows, learner, certification, random_generator)
 
+	for learner_index in range(DEFAULT_ONE_TARGET_LEARNERS):
+		learner = make_learner(fake, used_names)
+		cert_index = learner_index % len(TARGET_CERTS)
+		certification = TARGET_CERTS[cert_index]
+		add_target_certification_bundle(rows, learner, certification, random_generator)
+
 
 def unused_activity(learner: Learner, activities: list[Activity], random_generator: random.Random) -> Activity:
 	available_activities = [activity for activity in activities if activity.activity_id not in learner.used_activity_ids]
@@ -444,6 +451,7 @@ def validate_output(output_path: Path, expected_rows: int) -> None:
 	cert_counts = filtered.groupby("AADUserId")["TrainingTitle"].nunique()
 	all_three_count = int((cert_counts == 3).sum())
 	two_of_three_count = int((cert_counts == 2).sum())
+	one_of_three_count = int((cert_counts == 1).sum())
 
 	at_risk = filtered.copy()
 	at_risk["ExpirationDate"] = pd.to_datetime(at_risk["ExpirationDate"], errors="coerce")
@@ -455,11 +463,14 @@ def validate_output(output_path: Path, expected_rows: int) -> None:
 		raise AssertionError(f"Expected {DEFAULT_FULL_TARGET_LEARNERS} all-three learners, found {all_three_count}.")
 	if two_of_three_count != DEFAULT_TWO_TARGET_LEARNERS:
 		raise AssertionError(f"Expected {DEFAULT_TWO_TARGET_LEARNERS} two-of-three learners, found {two_of_three_count}.")
+	if one_of_three_count != DEFAULT_ONE_TARGET_LEARNERS:
+		raise AssertionError(f"Expected {DEFAULT_ONE_TARGET_LEARNERS} one-of-three learners, found {one_of_three_count}.")
 
 	print(f"Validated {len(dataframe):,} rows from {output_path}.")
 	print(f"Unique learners: {dataframe['AADUserId'].nunique():,}")
 	print(f"Learners with all 3 target certifications: {all_three_count:,}")
 	print(f"Learners with exactly 2 of 3 target certifications: {two_of_three_count:,}")
+	print(f"Learners with exactly 1 of 3 target certifications: {one_of_three_count:,}")
 	print(f"Target certifications expiring within 6 months: {len(at_risk):,}")
 
 
