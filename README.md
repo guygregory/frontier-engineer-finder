@@ -14,12 +14,12 @@ The tool looks for learners who hold (or are close to holding) all three of thes
 
 It then shows you four ready-to-use views:
 
-1. **Learners with all 3** — ready to be nominated.
+1. **Learners with all 3** — Certification Ready.
 2. **Learners with 2 of 3** — who they are, and which certification they still need.
 3. **Learners with 1 of 3** — earlier in the journey.
 4. **At-risk certifications** — target certs expiring within the next 6 months.
 
-Each panel has an **Export to .csv** button so you can drop the list straight into email, Excel, or your CRM.
+Each panel has an **Export to .csv** button so you can drop the list straight into Excel or send a mail-merge email.
 
 ## Try it instantly with the sample data
 
@@ -29,7 +29,7 @@ No installation, no sign-in.
 2. **Double-click `index.html`** — it opens in your default browser (Edge, Chrome, etc.).
 3. **Drag `SampleTrainings.csv`** onto the upload area (or click *Choose File* and pick it).
 
-The sample is synthetic data for a fictional partner *Contoso*. You should see roughly **5 learners with all 3**, **103 with 2 of 3**, and **1,071 with 1 of 3**.
+The sample is synthetic data for a fictional partner *Contoso*. You should see **5 learners with all 3**, **103 with 2 of 3**, and **1,071 with 1 of 3**.
 
 ## Use it with your real Partner Center data
 
@@ -42,7 +42,7 @@ The sample is synthetic data for a fictional partner *Contoso*. You should see r
 
 ## Other files in this repo
 
-- **`FrontierEngineer.ipynb`** — the same analysis as a Python/Jupyter notebook, for analysts who prefer working in pandas.
+- **`FrontierEngineer.ipynb`** — the same analysis as a Jupyter notebook, for analysts who prefer working in Python.
 - **`mockdata.py`** — the script that generates `SampleTrainings.csv`, in case you want to regenerate or expand the synthetic dataset.
 
 ## License
