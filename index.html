@@ -14,6 +14,7 @@
     --ms-green: #107c10;
     --ms-orange: #d83b01;
     --ms-red: #a80000;
+    --ms-purple: #8764b8;
     --ms-text: #323130;
     --ms-text-secondary: #605e5c;
   }
@@ -135,6 +136,7 @@
   .stat-card .value.blue { color: var(--ms-blue); }
   .stat-card .value.orange { color: var(--ms-orange); }
   .stat-card .value.red { color: var(--ms-red); }
+  .stat-card .value.purple { color: var(--ms-purple); }
 
   /* Results grid */
   .results-grid {
@@ -143,7 +145,7 @@
     gap: 16px;
   }
 
-  .results-grid .panel:last-child {
+  .results-grid .panel:nth-last-child(-n+2) {
     grid-column: 1 / -1;
   }
 
@@ -178,6 +180,7 @@
   .badge.green { background: var(--ms-green); }
   .badge.blue { background: var(--ms-blue); }
   .badge.orange { background: var(--ms-orange); }
+  .badge.purple { background: var(--ms-purple); }
 
   .panel-body {
     max-height: 240px;
@@ -311,8 +314,8 @@
         <div class="value blue" id="stat2of3">-</div>
       </div>
       <div class="stat-card">
-        <div class="label">At Risk (6 mo)</div>
-        <div class="value orange" id="statAtRisk">-</div>
+        <div class="label">1 of 3 Certs</div>
+        <div class="value purple" id="stat1of3">-</div>
       </div>
     </div>
 
@@ -353,7 +356,22 @@
         </div>
       </div>
 
-      <!-- Table 3: At Risk -->
+      <!-- Table 3: 1 of 3 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Learners with 1 of 3 certification requirements</h3>
+          <span class="badge purple" id="badge1of3">0</span>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>Name</th><th>Corp Email</th><th>Certification</th><th>Expiration Date</th></tr></thead>
+            <tbody id="table1of3"></tbody>
+          </table>
+          <div class="empty-state" id="empty1of3">No learners found</div>
+        </div>
+      </div>
+
+      <!-- Table 4: At Risk -->
       <div class="panel">
         <div class="panel-header">
           <h3>At risk certifications <span style="font-weight:400;font-size:12px;color:var(--ms-text-secondary)">(expiring within 6 months)</span></h3>
@@ -489,7 +507,21 @@
     }
     twoOf3.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Table 3: at risk (expiring within 6 months from today)
+    // Table 3: exactly 1 logical cert
+    const oneOf3 = [];
+    for (const [uid, data] of learnerCerts) {
+      if (data.logicalCerts.size === 1) {
+        oneOf3.push({
+          name: `${(data.row.IndividualFirstName || '')} ${(data.row.IndividualLastName || '')}`.trim(),
+          email: data.row.CorpEmail || '',
+          cert: data.row.TrainingTitle,
+          expDate: data.row.ExpirationDate ? new Date(data.row.ExpirationDate) : null
+        });
+      }
+    }
+    oneOf3.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Table 4: at risk (expiring within 6 months from today)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const cutoff = new Date(today);
@@ -512,7 +544,8 @@
     }
     atRisk.sort((a, b) => a.expDate - b.expDate);
 
-    // Unique learners with 2 of 3
+    // Unique learners with 1 of 3 / 2 of 3
+    const unique1of3 = new Set(oneOf3.map(r => r.email)).size;
     const unique2of3 = new Set(twoOf3.map(r => r.email)).size;
 
     // Render
@@ -521,7 +554,7 @@
     document.getElementById('statLearners').textContent = uniqueLearners.toLocaleString();
     document.getElementById('statAll3').textContent = all3.length;
     document.getElementById('stat2of3').textContent = unique2of3;
-    document.getElementById('statAtRisk').textContent = atRisk.length;
+    document.getElementById('stat1of3').textContent = unique1of3;
 
     renderTable('tableAll3', 'emptyAll3', 'badgeAll3', all3, r =>
       `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td>`
@@ -530,6 +563,11 @@
     renderTable('table2of3', 'empty2of3', 'badge2of3', twoOf3, r =>
       `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.missing))}</td>`,
       unique2of3
+    );
+
+    renderTable('table1of3', 'empty1of3', 'badge1of3', oneOf3, r =>
+      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.cert))}</td><td>${r.expDate ? formatDate(r.expDate) : ''}</td>`,
+      unique1of3
     );
 
     renderTable('tableAtRisk', 'emptyAtRisk', 'badgeAtRisk', atRisk, r =>
