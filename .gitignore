@@ -2,3 +2,6 @@
 *.csv
 !SampleTrainings.csv
 pci/
+.venv/
+.pytest_cache/
+tests/

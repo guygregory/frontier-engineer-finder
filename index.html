@@ -202,6 +202,7 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     border-bottom: 1px solid var(--ms-border);
+    cursor: pointer;
   }
 
   tbody td {
@@ -220,17 +221,6 @@
 
   /* Hidden state */
   #results { display: none; }
-
-  /* Cert pills */
-  .cert-pill {
-    display: inline-block;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: #fff4ce;
-    color: #8a6d00;
-    font-weight: 600;
-  }
 
   /* File info */
   .file-info {
@@ -278,7 +268,7 @@
 <header>
   <!-- Microsoft logo -->
   <svg width="20" height="20" viewBox="0 0 21 21"><rect x="0" y="0" width="10" height="10" fill="#f25022"/><rect x="11" y="0" width="10" height="10" fill="#7fba00"/><rect x="0" y="11" width="10" height="10" fill="#00a4ef"/><rect x="11" y="11" width="10" height="10" fill="#ffb900"/></svg>
-  <h1>Frontier Engineer Finder</h1>
+  <h1>Frontier Engineer Finder - Certification Ready</h1>
   <span class="subtitle">Partner Center &middot; Trainings Analysis</span>
 </header>
 
@@ -289,11 +279,6 @@
     <p>Drag &amp; drop your CSV or TSV file from Partner Center Insights, or click to browse.</p>
     <button class="browse-btn" id="browseBtn">Choose File</button>
     <input type="file" id="fileInput" accept=".csv,.tsv">
-    <div class="target-certs">
-      <span class="cert-tag">Azure AI Engineer Associate</span>
-      <span class="cert-tag">GitHub Copilot</span>
-      <span class="cert-tag">Agentic AI Business Solutions Architect</span>
-    </div>
   </div>
 
   <!-- Results -->
@@ -393,6 +378,8 @@
   const browseBtn = document.getElementById('browseBtn');
   const resultsDiv = document.getElementById('results');
   const fileInfo = document.getElementById('fileInfo');
+
+  initTableSorting();
 
   // Upload interactions
   browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
@@ -509,7 +496,7 @@
     );
 
     renderTable('table2of3', 'empty2of3', 'badge2of3', twoOf3, r =>
-      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td><span class="cert-pill">${escapeHtml(shortCert(r.missing))}</span></td>`,
+      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.missing))}</td>`,
       unique2of3
     );
 
@@ -535,6 +522,90 @@
       empty.style.display = 'none';
       tbody.innerHTML = data.map(r => `<tr>${rowFn(r)}</tr>`).join('');
     }
+  }
+
+  function initTableSorting() {
+    const tables = document.querySelectorAll('.panel table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('thead th');
+      headers.forEach((th, colIndex) => {
+        th.setAttribute('title', 'Click to sort');
+        th.setAttribute('tabindex', '0');
+        th.setAttribute('role', 'button');
+        th.addEventListener('click', () => sortTableByColumn(table, colIndex, th));
+        th.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            sortTableByColumn(table, colIndex, th);
+          }
+        });
+      });
+    });
+  }
+
+  function sortTableByColumn(table, colIndex, header) {
+    const tbody = table.tBodies[0];
+    if (!tbody) return;
+
+    const rows = Array.from(tbody.rows);
+    if (rows.length === 0) return;
+
+    const nextDir = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+    const headers = table.querySelectorAll('thead th');
+    headers.forEach(th => {
+      if (th !== header) {
+        th.dataset.sortDir = '';
+        th.removeAttribute('aria-sort');
+      }
+    });
+
+    header.dataset.sortDir = nextDir;
+    header.setAttribute('aria-sort', nextDir === 'asc' ? 'ascending' : 'descending');
+
+    const isExpirationDateColumn = header.textContent.trim().toLowerCase() === 'expiration date';
+
+    rows.sort((a, b) => {
+      const aText = getCellText(a, colIndex);
+      const bText = getCellText(b, colIndex);
+
+      let cmp;
+      if (isExpirationDateColumn) {
+        const aDate = parseDisplayDate(aText);
+        const bDate = parseDisplayDate(bText);
+        cmp = aDate - bDate;
+      } else {
+        cmp = aText.localeCompare(bText, undefined, { sensitivity: 'base' });
+      }
+
+      return nextDir === 'asc' ? cmp : -cmp;
+    });
+
+    tbody.innerHTML = '';
+    rows.forEach(row => tbody.appendChild(row));
+  }
+
+  function getCellText(row, colIndex) {
+    const cell = row.cells[colIndex];
+    return cell ? cell.textContent.trim() : '';
+  }
+
+  function parseDisplayDate(value) {
+    const months = {
+      jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+      jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+    };
+    const parts = value.trim().split(/\s+/);
+    if (parts.length !== 3) return Number.POSITIVE_INFINITY;
+
+    const day = Number(parts[0]);
+    const month = months[parts[1].toLowerCase()];
+    const year = Number(parts[2]);
+
+    if (!Number.isFinite(day) || month === undefined || !Number.isFinite(year)) {
+      return Number.POSITIVE_INFINITY;
+    }
+
+    return new Date(year, month, day).getTime();
   }
 
   function shortCert(str) {
