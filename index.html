@@ -17,6 +17,8 @@
     --ms-purple: #8764b8;
     --ms-text: #323130;
     --ms-text-secondary: #605e5c;
+    /* Scale factor applied to the GitHub Copilot badge relative to the other scope badges. */
+    --github-badge-scale: 0.9;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -365,6 +367,11 @@
     pointer-events: none;
   }
 
+  .scope-badge.github-badge {
+    width: calc(100% * var(--github-badge-scale));
+    max-height: calc(100% * var(--github-badge-scale));
+  }
+
   .scope-card .cert-list {
     padding: 0;
   }
@@ -464,7 +471,7 @@
         </ul>
       </div>
       <div class="scope-badge-wrap">
-        <img class="scope-badge" src="https://learn.microsoft.com/en-us/media/learn/certification/badges/github-copilot.svg" alt="GitHub Copilot badge">
+        <img class="scope-badge github-badge" src="https://learn.microsoft.com/en-us/media/learn/certification/badges/github-copilot.svg" alt="GitHub Copilot badge">
       </div>
     </div>
 
