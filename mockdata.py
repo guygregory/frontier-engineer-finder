@@ -45,6 +45,7 @@ DEFAULT_FULL_TARGET_LEARNERS = 5
 DEFAULT_TWO_TARGET_LEARNERS = 103
 DEFAULT_ONE_TARGET_LEARNERS = 1071
 TODAY = date.today()
+MIN_EXPIRATION_OFFSET = timedelta(days=28)
 
 TARGET_CERT_TITLES = [
 	"Microsoft Certified: Azure AI Engineer Associate",
@@ -290,13 +291,18 @@ def add_certification_bundle(
 		expiration_years = random_generator.choice([1, 1, 2, 2, 3])
 		expiration_date = add_years(completion_date, expiration_years)
 
+	if expiration_date is not None:
+		minimum_expiration = TODAY + MIN_EXPIRATION_OFFSET
+		if expiration_date < minimum_expiration:
+			expiration_date = minimum_expiration + timedelta(days=random_generator.randint(0, 180))
+
 	add_certification_row(rows, learner, certification, completion_date, expiration_date)
 
 
 def add_target_certification_bundle(
 	rows: list[dict[str, object]], learner: Learner, certification: Activity, random_generator: random.Random
 ) -> None:
-	expiration_date = TODAY + timedelta(days=random_generator.randint(20, 540))
+	expiration_date = TODAY + timedelta(days=random_generator.randint(MIN_EXPIRATION_OFFSET.days, 540))
 	completion_date = expiration_date - timedelta(days=365)
 	add_certification_bundle(rows, learner, certification, random_generator, completion_date, expiration_date)
 
