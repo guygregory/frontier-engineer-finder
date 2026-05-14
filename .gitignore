@@ -1,6 +1,7 @@
 *.tsv
 *.csv
 !SampleTrainings.csv
+!data/SampleTrainings.csv
 pci/
 .venv/
 .pytest_cache/

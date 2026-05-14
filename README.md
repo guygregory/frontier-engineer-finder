@@ -2,7 +2,7 @@
 
 A simple, in-browser tool that scans your Microsoft Partner Center training data and shows which learners are on track for the **Frontier Transformation Engineer** badge — based on three target certifications.
 
-![Sample dashboard](SampleScreenshot.png)
+![Sample dashboard](img/SampleScreenshot.png)
 
 ## What it does
 
@@ -25,9 +25,9 @@ Each panel has an **Export to .csv** button so you can drop the list straight in
 
 No installation, no sign-in.
 
-1. **Download this repo** (green **Code** button on GitHub → *Download ZIP* → unzip), or just grab `index.html` and `SampleTrainings.csv`.
-2. **Double-click `index.html`** — it opens in your default browser (Edge, Chrome, etc.).
-3. **Drag `SampleTrainings.csv`** onto the upload area (or click *Choose File* and pick it).
+1. **Download this repo** (green **Code** button on GitHub → *Download ZIP* → unzip), or grab the prepackaged [`releases/FrontierEngineer.zip`](releases/FrontierEngineer.zip).
+2. **Double-click `web/index.html`** — it opens in your default browser (Edge, Chrome, etc.).
+3. **Drag `data/SampleTrainings.csv`** onto the upload area (or click *Upload file* and pick it).
 
 The sample is synthetic data for a fictional partner *Contoso*. You should see **5 learners with all 3**, **103 with 2 of 3**, and **1,071 with 1 of 3**.
 
@@ -36,14 +36,14 @@ The sample is synthetic data for a fictional partner *Contoso*. You should see *
 1. Go to **[Partner Center Insights → Downloads Hub](https://partner.microsoft.com/en-us/dashboard/insights/analytics/downloadshub)**.
 2. Sign in with a **[Global Admin](https://learn.microsoft.com/partner-center/account-settings/permissions-overview#global-admin-role)** account.
 3. Choose **Create new report** → **Membership** → **Basic** → **Trainings** → **(Select all)** → **Lifetime** → **CSV** → **Download now**.
-4. Open `index.html` and drag your downloaded CSV onto the upload area.
+4. Open `web/index.html` and drag your downloaded CSV onto the upload area.
 
 > **Your data stays private.** The file is processed entirely inside your browser — nothing is uploaded to any server or saved to disk.
 
 ## Other files in this repo
 
-- **`FrontierEngineer.ipynb`** — the same analysis as a Jupyter notebook, for analysts who prefer working in Python.
-- **`mockdata.py`** — the script that generates `SampleTrainings.csv`, in case you want to regenerate or expand the synthetic dataset.
+- **`notebooks/FrontierEngineer.ipynb`** — the same analysis as a Jupyter notebook, for analysts who prefer working in Python.
+- **`src/mockdata.py`** — the script that generates `data/SampleTrainings.csv`, in case you want to regenerate or expand the synthetic dataset.
 
 ## License
 

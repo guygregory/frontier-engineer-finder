@@ -668,20 +668,32 @@
   uploadArea.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
-  // Demo: check if SampleTrainings.csv is available; if so, expose Try demo button.
-  const SAMPLE_FILE = 'SampleTrainings.csv';
-  fetch(SAMPLE_FILE, { method: 'HEAD' })
-    .then(r => {
-      if (r.ok) {
-        demoBtn.style.display = 'inline-block';
-        demoSeparator.style.display = 'block';
-      }
-    })
-    .catch(() => { /* file not available; keep button hidden */ });
+  // Demo: probe candidate locations for SampleTrainings.csv (supports flat-zip,
+  // /web/ served from repo root, and Pages-deployed flat layouts).
+  const SAMPLE_CANDIDATES = [
+    'SampleTrainings.csv',
+    'data/SampleTrainings.csv',
+    '../data/SampleTrainings.csv'
+  ];
+  let resolvedSampleUrl = null;
+
+  (async () => {
+    for (const url of SAMPLE_CANDIDATES) {
+      try {
+        const r = await fetch(url, { method: 'HEAD' });
+        if (r.ok) { resolvedSampleUrl = url; break; }
+      } catch (_) { /* try next */ }
+    }
+    if (resolvedSampleUrl) {
+      demoBtn.style.display = 'inline-block';
+      demoSeparator.style.display = 'block';
+    }
+  })();
 
   demoBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    fetch(SAMPLE_FILE)
+    if (!resolvedSampleUrl) { alert('Sample data not available.'); return; }
+    fetch(resolvedSampleUrl)
       .then(r => {
         if (!r.ok) throw new Error('Sample file not found');
         return r.text();
@@ -692,7 +704,7 @@
           alert('Failed to parse sample file.');
           return;
         }
-        processData(parsed.data, SAMPLE_FILE);
+        processData(parsed.data, 'SampleTrainings.csv');
       })
       .catch(err => alert('Unable to load demo data: ' + err.message));
   });

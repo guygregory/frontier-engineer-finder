@@ -1,0 +1,90 @@
+name: Regenerate SampleScreenshot.png
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Capture screenshot
+        id: capture
+        continue-on-error: true
+        run: |
+          python <<'PY'
+          import http.server
+          import socketserver
+          import threading
+          from playwright.sync_api import sync_playwright
+
+          PORT = 8765
+
+          class Handler(http.server.SimpleHTTPRequestHandler):
+              def log_message(self, *args, **kwargs):
+                  pass
+
+          httpd = socketserver.TCPServer(("127.0.0.1", PORT), Handler)
+          threading.Thread(target=httpd.serve_forever, daemon=True).start()
+          try:
+              with sync_playwright() as p:
+                  browser = p.chromium.launch()
+                  context = browser.new_context(viewport={"width": 1440, "height": 1800})
+                  page = context.new_page()
+                  page.goto(f"http://127.0.0.1:{PORT}/web/index.html", wait_until="networkidle")
+                  # Wait until the demo button becomes visible (script flips inline style)
+                  page.wait_for_function(
+                      "() => { const b = document.getElementById('demoBtn'); "
+                      "return b && getComputedStyle(b).display !== 'none'; }",
+                      timeout=15000,
+                  )
+                  page.click("#demoBtn")
+                  page.wait_for_selector("#results", state="visible", timeout=15000)
+                  page.wait_for_load_state("networkidle")
+                  page.screenshot(path="img/SampleScreenshot.png", full_page=True)
+                  browser.close()
+          finally:
+              httpd.shutdown()
+          PY
+
+      - name: Check screenshot was produced
+        if: steps.capture.outcome == 'success'
+        run: |
+          if [[ ! -s img/SampleScreenshot.png ]]; then
+            echo "Screenshot file is missing or empty."
+            exit 1
+          fi
+
+      - name: Commit and push updated screenshot
+        if: steps.capture.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain img/SampleScreenshot.png)" ]]; then
+            git add img/SampleScreenshot.png
+            git commit -m "chore: regenerate SampleScreenshot.png [skip ci]"
+            git push
+          else
+            echo "Screenshot unchanged; nothing to commit."
+          fi
+
+      - name: Report failure
+        if: steps.capture.outcome != 'success'
+        run: |
+          echo "::warning::Screenshot capture failed; SampleScreenshot.png was not updated."

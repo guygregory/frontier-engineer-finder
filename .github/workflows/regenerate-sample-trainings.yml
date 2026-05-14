@@ -27,14 +27,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Regenerate SampleTrainings.csv
-        run: python mockdata.py
+        run: python src/mockdata.py
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain SampleTrainings.csv)" ]]; then
-            git add SampleTrainings.csv
+          if [[ -n "$(git status --porcelain data/SampleTrainings.csv)" ]]; then
+            git add data/SampleTrainings.csv
             git commit -m "chore: regenerate SampleTrainings.csv [skip ci]"
             git push
           else
