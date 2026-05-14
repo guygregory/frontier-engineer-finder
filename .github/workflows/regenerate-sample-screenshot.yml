@@ -45,7 +45,7 @@ jobs:
           try:
               with sync_playwright() as p:
                   browser = p.chromium.launch()
-                  context = browser.new_context(viewport={"width": 2256, "height": 1504})
+                  context = browser.new_context(viewport={"width": 1440, "height": 960})
                   page = context.new_page()
                   page.goto(f"http://127.0.0.1:{PORT}/web/index.html", wait_until="networkidle")
                   # Wait until the demo button becomes visible (script flips inline style)
