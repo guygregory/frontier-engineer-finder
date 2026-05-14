@@ -100,6 +100,7 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    min-width: 140px;
   }
 
   .upload-area .browse-btn:hover { background: #106ebe; }
@@ -492,8 +493,10 @@
   <!-- Upload -->
   <div class="upload-area" id="uploadArea">
     <h2>Upload Trainings Report</h2>
-    <p>Drag &amp; drop your CSV or TSV file from Partner Center Insights, or click to browse.</p>
-    <button class="browse-btn" id="browseBtn">Choose File</button>
+    <p>Upload your Trainings report CSV or TSV file from Partner Center Insights, or try the tool with demo data.</p>
+    <button class="browse-btn" id="browseBtn">Upload file</button>
+    <div class="demo-separator" id="demoSeparator" style="display:none; margin-top: 8px; font-size: 13px; color: var(--ms-text-secondary);">- or -</div>
+    <button class="browse-btn" id="demoBtn" style="display:none;">Try demo</button>
     <input type="file" id="fileInput" accept=".csv,.tsv">
   </div>
 
@@ -652,6 +655,8 @@
   const uploadArea = document.getElementById('uploadArea');
   const fileInput = document.getElementById('fileInput');
   const browseBtn = document.getElementById('browseBtn');
+  const demoBtn = document.getElementById('demoBtn');
+  const demoSeparator = document.getElementById('demoSeparator');
   const resultsDiv = document.getElementById('results');
   const fileInfo = document.getElementById('fileInfo');
 
@@ -662,6 +667,35 @@
   browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
   uploadArea.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+  // Demo: check if SampleTrainings.csv is available; if so, expose Try demo button.
+  const SAMPLE_FILE = 'SampleTrainings.csv';
+  fetch(SAMPLE_FILE, { method: 'HEAD' })
+    .then(r => {
+      if (r.ok) {
+        demoBtn.style.display = 'inline-block';
+        demoSeparator.style.display = 'block';
+      }
+    })
+    .catch(() => { /* file not available; keep button hidden */ });
+
+  demoBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fetch(SAMPLE_FILE)
+      .then(r => {
+        if (!r.ok) throw new Error('Sample file not found');
+        return r.text();
+      })
+      .then(text => {
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        if (parsed.errors.length && parsed.data.length === 0) {
+          alert('Failed to parse sample file.');
+          return;
+        }
+        processData(parsed.data, SAMPLE_FILE);
+      })
+      .catch(err => alert('Unable to load demo data: ' + err.message));
+  });
 
   uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
   uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
