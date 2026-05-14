@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'data/SampleTrainings.csv'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -30,10 +31,16 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Stage site
+        run: |
+          mkdir -p _site/data
+          cp -r web/. _site/
+          cp data/SampleTrainings.csv _site/data/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./web
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment
