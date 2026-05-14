@@ -53,6 +53,16 @@
     margin-left: auto;
   }
 
+  header .github-link {
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+  }
+
+  header .github-link:hover { opacity: 1; }
+
   .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -445,6 +455,9 @@
   <svg width="20" height="20" viewBox="0 0 21 21"><rect x="0" y="0" width="10" height="10" fill="#f25022"/><rect x="11" y="0" width="10" height="10" fill="#7fba00"/><rect x="0" y="11" width="10" height="10" fill="#00a4ef"/><rect x="11" y="11" width="10" height="10" fill="#ffb900"/></svg>
   <h1>Frontier Transformation Engineer Finder - Certification Ready</h1>
   <span class="subtitle">Partner Center &middot; Trainings Analysis</span>
+  <a class="github-link" href="https://github.com/guygregory/frontier-engineer-finder" target="_blank" rel="noopener noreferrer" aria-label="View source on GitHub" title="View source on GitHub">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+  </a>
 </header>
 
 <div class="container">
@@ -492,9 +505,9 @@
 
   <!-- Upload -->
   <div class="upload-area" id="uploadArea">
-    <h2>Upload Trainings Report</h2>
-    <p>Upload your Trainings report CSV or TSV file from Partner Center Insights, or try the tool with demo data.</p>
-    <button class="browse-btn" id="browseBtn">Upload file</button>
+    <h2>Analyze Trainings Report</h2>
+    <p>Select your downloaded Trainings report CSV or TSV file, or try the tool with demo data.</p>
+    <button class="browse-btn" id="browseBtn">Select file</button>
     <div class="demo-separator" id="demoSeparator" style="display:none; margin-top: 8px; font-size: 13px; color: var(--ms-text-secondary);">- or -</div>
     <button class="browse-btn" id="demoBtn" style="display:none;">Try demo</button>
     <input type="file" id="fileInput" accept=".csv,.tsv">
@@ -626,11 +639,11 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="privacy-note">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
-      Your file is processed entirely in your browser. No data is uploaded to any server or stored on disk.
-    </div>
+  <div class="privacy-note">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+    Your data is processed entirely in your local browser. No personal data is uploaded to any server or stored on disk. For an offline version, download <a href="https://aka.ms/FrontierEngineerFinder" target="_blank" rel="noopener noreferrer">here.</a>
   </div>
 </div>
 
