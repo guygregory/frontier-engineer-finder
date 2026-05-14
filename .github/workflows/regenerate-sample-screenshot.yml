@@ -2,6 +2,7 @@ name: Regenerate SampleScreenshot.png
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: write
@@ -25,8 +26,6 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Capture screenshot
-        id: capture
-        continue-on-error: true
         run: |
           python <<'PY'
           import http.server
@@ -64,7 +63,6 @@ jobs:
           PY
 
       - name: Check screenshot was produced
-        if: steps.capture.outcome == 'success'
         run: |
           if [[ ! -s img/SampleScreenshot.png ]]; then
             echo "Screenshot file is missing or empty."
@@ -72,7 +70,6 @@ jobs:
           fi
 
       - name: Commit and push updated screenshot
-        if: steps.capture.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -83,8 +80,3 @@ jobs:
           else
             echo "Screenshot unchanged; nothing to commit."
           fi
-
-      - name: Report failure
-        if: steps.capture.outcome != 'success'
-        run: |
-          echo "::warning::Screenshot capture failed; SampleScreenshot.png was not updated."

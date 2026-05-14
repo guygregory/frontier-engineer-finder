@@ -1,0 +1,28 @@
+name: Weekly refresh and package
+
+on:
+  schedule:
+    # Every Sunday at 00:00 GMT
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  trainings:
+    uses: ./.github/workflows/regenerate-sample-trainings.yml
+    permissions:
+      contents: write
+
+  screenshot:
+    needs: trainings
+    uses: ./.github/workflows/regenerate-sample-screenshot.yml
+    permissions:
+      contents: write
+
+  package:
+    needs: screenshot
+    uses: ./.github/workflows/regenerate-release-zip.yml
+    permissions:
+      contents: write
