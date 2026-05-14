@@ -1,0 +1,60 @@
+name: Regenerate FrontierEngineer.zip
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Build releases/FrontierEngineer.zip
+        run: |
+          python <<'PY'
+          import os
+          import sys
+          import zipfile
+
+          # Source path in repo -> archive name inside the zip (flattened to root)
+          files = [
+              ("web/index.html", "index.html"),
+              ("data/SampleTrainings.csv", "SampleTrainings.csv"),
+              ("img/SampleScreenshot.png", "SampleScreenshot.png"),
+              ("src/FrontierEngineer.ipynb", "FrontierEngineer.ipynb"),
+          ]
+
+          missing = [src for src, _ in files if not os.path.isfile(src)]
+          if missing:
+              print("ERROR: missing source files: " + ", ".join(missing), file=sys.stderr)
+              sys.exit(1)
+
+          os.makedirs("releases", exist_ok=True)
+          out = "releases/FrontierEngineer.zip"
+          with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+              for src, arcname in files:
+                  print(f"adding {src} as {arcname}")
+                  zf.write(src, arcname)
+
+          size = os.path.getsize(out)
+          print(f"wrote {out} ({size} bytes)")
+          if size == 0:
+              print("ERROR: produced zip is empty", file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - name: Commit and push updated zip
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain releases/FrontierEngineer.zip)" ]]; then
+            git add releases/FrontierEngineer.zip
+            git commit -m "chore: regenerate FrontierEngineer.zip [skip ci]"
+            git push
+          else
+            echo "Zip unchanged; nothing to commit."
+          fi
