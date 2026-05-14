@@ -73,10 +73,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add img/SampleScreenshot.png
           if [[ -n "$(git status --porcelain img/SampleScreenshot.png)" ]]; then
-            git add img/SampleScreenshot.png
             git commit -m "chore: regenerate SampleScreenshot.png [skip ci]"
-            git push
           else
-            echo "Screenshot unchanged; nothing to commit."
+            echo "Screenshot bytes unchanged; creating empty commit to force push."
+            git commit --allow-empty -m "chore: regenerate SampleScreenshot.png (unchanged) [skip ci]"
           fi
+          git push
