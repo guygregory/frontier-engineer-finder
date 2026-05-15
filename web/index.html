@@ -66,7 +66,7 @@
   .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 10px 24px;
   }
 
   /* Upload area */
@@ -85,6 +85,14 @@
     border-color: var(--ms-blue);
     background: #f0f6ff;
   }
+
+  .upload-area,
+  .scope-triptych,
+  .phase-stepper-section,
+  .learning-details-banner,
+  #helperText { margin-bottom: 10px !important; }
+
+  .summary-bar { margin-bottom: 10px; }
 
   .upload-area h2 {
     font-size: 18px;
@@ -114,6 +122,22 @@
   }
 
   .upload-area .browse-btn:hover { background: #106ebe; }
+
+  .upload-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .upload-actions .browse-btn { margin-top: 0; }
+
+  .upload-actions .demo-separator {
+    font-size: 13px;
+    color: var(--ms-text-secondary);
+  }
 
   /* Summary bar */
   .summary-bar {
@@ -447,6 +471,158 @@
     .scope-triptych { grid-template-columns: 1fr; }
     .scope-and { padding: 4px 0; }
   }
+
+  /* Phase stepper (cloned from Journey.html) */
+  .phase-stepper-section {
+    background-color: #ffffff;
+    padding: 28px 16px;
+    border: 1px solid var(--ms-border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .phase-stepper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .phase-stepper::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 50px;
+    right: 50px;
+    height: 2px;
+    background-color: #e2e8f0;
+    z-index: 1;
+  }
+
+  .phase-stepper .step-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .phase-stepper .step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    border: 4px solid #ffffff;
+  }
+
+  .phase-stepper .step-label { text-align: center; }
+
+  .phase-stepper .step-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 2px;
+  }
+
+  .phase-stepper .step-info {
+    font-size: 10px;
+    color: #64748b;
+    text-transform: capitalize;
+  }
+
+  /* Active step highlight (Stage 1 - this tool's focus) */
+  .phase-stepper .step-item.active .step-circle {
+    background-color: var(--ms-blue);
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(0, 120, 212, 0.18);
+    transform: scale(1.15);
+  }
+
+  .phase-stepper .step-item.active .step-name {
+    color: var(--ms-blue);
+    font-weight: 700;
+  }
+
+  .phase-stepper .step-item.active .step-focus-tag {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ms-blue);
+    background: rgba(0, 120, 212, 0.1);
+    border: 1px solid rgba(0, 120, 212, 0.25);
+    border-radius: 10px;
+    padding: 2px 8px;
+  }
+
+  .phase-stepper .step-item:not(.active) {
+    opacity: 0.55;
+  }
+
+  /* Learning details banner (cloned from Journey.html) */
+  .learning-details-banner {
+    background-color: #091F2C;
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 0 28px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 24px;
+    height: 133px; /* shorter still; badges spill 3px above and ~17px below */
+    overflow: visible;
+    font-family: 'Segoe UI Web (West European)', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .learning-details-banner .banner-title {
+    align-self: center;
+  }
+
+  .learning-details-banner .banner-title {
+    grid-column: 2;
+    font-size: 38px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+    padding-bottom: 0.1em;
+    text-align: center;
+    background: linear-gradient(93.42deg, #FFFFFF 15.59%, #E0F2A8 35.87%, #D4EC8E 66.15%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .learning-details-banner .banner-badge-img {
+    flex-shrink: 0;
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    display: block;
+    margin-top: -3px; /* allow a 3px spill-over above the banner */
+  }
+
+  .learning-details-banner .banner-badge-img.left { grid-column: 1; justify-self: start; }
+  .learning-details-banner .banner-badge-img.right { grid-column: 3; justify-self: end; }
+
+  @media (max-width: 600px) {
+    .learning-details-banner { grid-template-columns: 1fr; }
+    .learning-details-banner .banner-title { grid-column: 1; font-size: 28px; }
+    .learning-details-banner .banner-badge-img { grid-column: 1; justify-self: center; width: 112px; height: 112px; }
+    .learning-details-banner .banner-badge-img.left { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -461,6 +637,48 @@
 </header>
 
 <div class="container">
+  <!-- Journey banner (cloned from skillupwithlevelup.com Journey page) -->
+  <section class="learning-details-banner" id="learningDetailsBanner">
+    <img class="banner-badge-img left" src="https://skillupwthlupai-dev.azurewebsites.net/levelup-fy26/images/frontier-engineer-badge-icon.png" alt="" aria-hidden="true">
+    <h1 class="banner-title">Frontier Transformation Engineer</h1>
+    <img class="banner-badge-img right" src="https://skillupwthlupai-dev.azurewebsites.net/levelup-fy26/images/frontier-engineer-badge-icon.png" alt="Frontier Transformation Engineer badge">
+  </section>
+
+  <!-- Phase stepper (cloned from skillupwithlevelup.com Journey page) -->
+  <section class="phase-stepper-section" id="phaseStepperSection">
+    <div class="phase-stepper">
+      <div class="step-item active" aria-current="step">
+        <div class="step-circle">1</div>
+        <div class="step-label">
+          <div class="step-name">Certification</div>
+          <div class="step-info">3 courses</div>
+          <div class="step-focus-tag">You are here</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">2</div>
+        <div class="step-label">
+          <div class="step-name">Project Ready</div>
+          <div class="step-info">5 courses</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <div class="step-label">
+          <div class="step-name">Frontier COE &amp; HVE</div>
+          <div class="step-info">3 courses</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <div class="step-label">
+          <div class="step-name">Receive Badge</div>
+          <div class="step-info">Frontier Transformation Engineer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Certifications in scope -->
   <div class="scope-triptych" id="scopeTriptych">
     <div class="scope-card azure">
@@ -507,9 +725,11 @@
   <div class="upload-area" id="uploadArea">
     <h2>Analyze Trainings Report</h2>
     <p>Select your downloaded Trainings report CSV or TSV file, or try the tool with demo data.</p>
-    <button class="browse-btn" id="browseBtn">Select file</button>
-    <div class="demo-separator" id="demoSeparator" style="display:none; margin-top: 8px; font-size: 13px; color: var(--ms-text-secondary);">- or -</div>
-    <button class="browse-btn" id="demoBtn" style="display:none;">Try demo</button>
+    <div class="upload-actions">
+      <button class="browse-btn" id="browseBtn">Select file</button>
+      <span class="demo-separator" id="demoSeparator" style="display:none;">- or -</span>
+      <button class="browse-btn" id="demoBtn" style="display:none;">Try demo</button>
+    </div>
     <input type="file" id="fileInput" accept=".csv,.tsv">
   </div>
 
@@ -699,7 +919,7 @@
     }
     if (resolvedSampleUrl) {
       demoBtn.style.display = 'inline-block';
-      demoSeparator.style.display = 'block';
+      demoSeparator.style.display = 'inline-block';
     }
   })();
 
@@ -877,6 +1097,10 @@
     document.getElementById('helperText').style.display = 'none';
     const scope = document.getElementById('scopeTriptych');
     if (scope) scope.style.display = 'none';
+    const stepper = document.getElementById('phaseStepperSection');
+    if (stepper) stepper.style.display = 'none';
+    const banner = document.getElementById('learningDetailsBanner');
+    if (banner) banner.style.display = 'none';
   }
 
   function renderTable(tbodyId, emptyId, badgeId, data, rowFn, badgeCount) {
