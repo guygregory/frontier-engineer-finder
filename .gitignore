@@ -6,3 +6,4 @@ pci/
 .venv/
 .pytest_cache/
 tests/
+personal/
