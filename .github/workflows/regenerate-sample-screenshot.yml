@@ -71,6 +71,11 @@ jobs:
 
       - name: Commit and push updated screenshot
         run: |
+          branch="${GITHUB_REF_NAME}"
+          if [[ -z "$branch" ]]; then
+            echo "GITHUB_REF_NAME is empty; cannot determine push target branch."
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add img/SampleScreenshot.png
@@ -80,4 +85,13 @@ jobs:
             echo "Screenshot bytes unchanged; creating empty commit to force push."
             git commit --allow-empty -m "chore: regenerate SampleScreenshot.png (unchanged) [skip ci]"
           fi
-          git push
+          if ! git fetch origin "$branch"; then
+            echo "Fetch failed while syncing with origin/$branch before push."
+            exit 1
+          fi
+          if ! git rebase "origin/$branch"; then
+            echo "Rebase failed while syncing with origin/$branch before push (possible merge conflict from concurrent changes). Manual resolution may be required."
+            git rebase --abort || true
+            exit 1
+          fi
+          git push origin "HEAD:$branch"
