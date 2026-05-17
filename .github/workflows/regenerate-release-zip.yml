@@ -55,7 +55,16 @@ jobs:
           if [[ -n "$(git status --porcelain releases/FrontierEngineer.zip)" ]]; then
             git add releases/FrontierEngineer.zip
             git commit -m "chore: regenerate FrontierEngineer.zip [skip ci]"
-            git push
+            # Upstream may have advanced (e.g. earlier jobs in the weekly
+            # workflow pushed sample data / screenshot commits). Rebase our
+            # single commit on top before pushing to avoid non-fast-forward
+            # rejections.
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+                git push origin "HEAD:${GITHUB_REF_NAME}" && break
+              echo "Push attempt $i failed; retrying..."
+              sleep $((i * 3))
+            done
           else
             echo "Zip unchanged; nothing to commit."
           fi
