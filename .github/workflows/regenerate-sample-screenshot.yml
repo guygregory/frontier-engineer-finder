@@ -85,5 +85,8 @@ jobs:
             echo "Screenshot bytes unchanged; creating empty commit to force push."
             git commit --allow-empty -m "chore: regenerate SampleScreenshot.png (unchanged) [skip ci]"
           fi
-          git pull --rebase origin "$branch"
+          if ! git pull --rebase origin "$branch"; then
+            echo "Rebase failed while syncing with origin/$branch before push."
+            exit 1
+          fi
           git push origin "HEAD:$branch"
