@@ -91,6 +91,7 @@ jobs:
           fi
           if ! git rebase "origin/$branch"; then
             echo "Rebase failed while syncing with origin/$branch before push (possible merge conflict from concurrent changes). Manual resolution may be required."
+            git rebase --abort || true
             exit 1
           fi
           git push origin "HEAD:$branch"
