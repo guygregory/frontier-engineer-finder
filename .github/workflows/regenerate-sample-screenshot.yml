@@ -71,7 +71,11 @@ jobs:
 
       - name: Commit and push updated screenshot
         run: |
-          branch="${GITHUB_REF_NAME:-main}"
+          branch="${GITHUB_REF_NAME}"
+          if [[ -z "$branch" ]]; then
+            echo "GITHUB_REF_NAME is empty; cannot determine push target branch."
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add img/SampleScreenshot.png
