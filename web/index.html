@@ -1032,7 +1032,7 @@
     const unique2of3 = new Set(twoOf3.map(r => r.email)).size;
 
     // Render
-    fileInfo.innerHTML = `<span>File: <strong>${escapeHtml(fileName)}</strong></span><button type="button" class="export-btn" id="uploadNewBtn">Upload new file</button>`;
+    fileInfo.innerHTML = `<span>File: <strong>${escapeHtml(fileName)}</strong></span><button type="button" class="export-btn" id="uploadNewBtn">Select new file</button>`;
     document.getElementById('uploadNewBtn').addEventListener('click', () => fileInput.click());
     document.getElementById('statActivities').textContent = totalActivities.toLocaleString();
     document.getElementById('statLearners').textContent = uniqueLearners.toLocaleString();
