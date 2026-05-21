@@ -697,6 +697,10 @@
       <button class="browse-btn" id="demoBtn" style="display:none;">Try demo</button>
     </div>
     <input type="file" id="fileInput" accept=".csv,.tsv">
+    <div class="privacy-note" id="privacyNote">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+      Your data is processed entirely in your local browser. No personal data is uploaded to any server or stored.
+    </div>
   </div>
 
   <!-- Helper text -->
@@ -827,10 +831,6 @@
     </div>
   </div>
 
-  <div class="privacy-note">
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
-    Your data is processed entirely in your local browser. No personal data is uploaded to any server or stored. For an offline version, download <a href="https://aka.ms/FrontierEngineerFinder" target="_blank" rel="noopener noreferrer">here.</a>
-  </div>
 </div>
 
 <script>
@@ -858,12 +858,14 @@
   const demoSeparator = document.getElementById('demoSeparator');
   const resultsDiv = document.getElementById('results');
   const fileInfo = document.getElementById('fileInfo');
+  const privacyNote = document.getElementById('privacyNote');
 
   initTableSorting();
   initExportButtons();
 
   // Upload interactions
   browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+  privacyNote.addEventListener('click', (e) => { e.stopPropagation(); });
   uploadArea.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
@@ -1059,6 +1061,7 @@
     );
 
     resultsDiv.style.display = 'block';
+    resultsDiv.appendChild(privacyNote);
     uploadArea.style.display = 'none';
     document.getElementById('helperText').style.display = 'none';
     const scope = document.getElementById('scopeTriptych');
