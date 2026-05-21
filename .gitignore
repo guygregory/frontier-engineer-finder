@@ -7,4 +7,3 @@ pci/
 .pytest_cache/
 tests/
 personal/
-a11y/
