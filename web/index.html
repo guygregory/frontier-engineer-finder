@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.ico">
 <title>Frontier Transformation Engineer Finder - Certification Ready</title>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
   :root {
     --ms-blue: #0078d4;
@@ -876,31 +875,14 @@
     'data/SampleTrainings.csv',
     '../data/SampleTrainings.csv'
   ];
-  let resolvedSampleUrl = null;
-
-  (async () => {
-    for (const url of SAMPLE_CANDIDATES) {
-      try {
-        const r = await fetch(url, { method: 'HEAD' });
-        if (r.ok) { resolvedSampleUrl = url; break; }
-      } catch (_) { /* try next */ }
-    }
-    if (resolvedSampleUrl) {
-      demoBtn.style.display = 'inline-block';
-      demoSeparator.style.display = 'inline-block';
-    }
-  })();
+  demoBtn.style.display = 'inline-block';
+  demoSeparator.style.display = 'inline-block';
 
   demoBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (!resolvedSampleUrl) { alert('Sample data not available.'); return; }
-    fetch(resolvedSampleUrl)
-      .then(r => {
-        if (!r.ok) throw new Error('Sample file not found');
-        return r.text();
-      })
+    loadSampleData()
       .then(text => {
-        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        const parsed = parseTrainingReport(text);
         if (parsed.errors.length && parsed.data.length === 0) {
           alert('Failed to parse sample file.');
           return;
@@ -909,6 +891,17 @@
       })
       .catch(err => alert('Unable to load demo data: ' + err.message));
   });
+
+  async function loadSampleData() {
+    for (const url of SAMPLE_CANDIDATES) {
+      try {
+        const response = await fetch(url);
+        if (response.ok) return response.text();
+      } catch (_) { /* try next */ }
+    }
+
+    throw new Error('Sample file not found');
+  }
 
   uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
   uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
@@ -922,7 +915,7 @@
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target.result;
-      const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+      const parsed = parseTrainingReport(text);
       if (parsed.errors.length && parsed.data.length === 0) {
         alert('Failed to parse file. Please check the format.');
         return;
@@ -930,6 +923,141 @@
       processData(parsed.data, file.name);
     };
     reader.readAsText(file);
+  }
+
+  function parseTrainingReport(text) {
+    const errors = [];
+    const rows = parseDelimitedRows(text, errors);
+    const nonEmptyRows = rows.filter(row => row.some(value => value.trim() !== ''));
+
+    if (nonEmptyRows.length === 0) {
+      return { data: [], errors: [{ message: 'No data found' }] };
+    }
+
+    const headers = nonEmptyRows[0].map((header, index) =>
+      index === 0 ? header.replace(/^\uFEFF/, '').trim() : header.trim()
+    );
+
+    const data = nonEmptyRows.slice(1).map(row => {
+      const record = {};
+      headers.forEach((header, index) => {
+        record[header] = row[index] === undefined ? '' : row[index];
+      });
+      return record;
+    });
+
+    return { data, errors };
+  }
+
+  function parseDelimitedRows(text, errors) {
+    const delimiter = detectDelimiter(text);
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let index = 0; index < text.length; index++) {
+      const char = text[index];
+      const nextChar = text[index + 1];
+
+      if (inQuotes) {
+        if (char === '"') {
+          if (nextChar === '"') {
+            field += '"';
+            index++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          field += char;
+        }
+        continue;
+      }
+
+      if (char === '"' && field === '') {
+        inQuotes = true;
+      } else if (char === delimiter) {
+        row.push(field);
+        field = '';
+      } else if (char === '\r' || char === '\n') {
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = '';
+        if (char === '\r' && nextChar === '\n') index++;
+      } else {
+        field += char;
+      }
+    }
+
+    if (inQuotes) {
+      errors.push({ message: 'Unclosed quoted field' });
+    }
+
+    if (field !== '' || row.length > 0) {
+      row.push(field);
+      rows.push(row);
+    }
+
+    return rows;
+  }
+
+  function detectDelimiter(text) {
+    const firstLine = getFirstNonEmptyLine(text);
+    const commaCount = countDelimiterOutsideQuotes(firstLine, ',');
+    const tabCount = countDelimiterOutsideQuotes(firstLine, '\t');
+    return tabCount > commaCount ? '\t' : ',';
+  }
+
+  function getFirstNonEmptyLine(text) {
+    let line = '';
+    let inQuotes = false;
+
+    for (let index = 0; index < text.length; index++) {
+      const char = text[index];
+      const nextChar = text[index + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          line += char + nextChar;
+          index++;
+          continue;
+        }
+        inQuotes = !inQuotes;
+      }
+
+      if (!inQuotes && (char === '\r' || char === '\n')) {
+        if (line.trim() !== '') return line;
+        line = '';
+        if (char === '\r' && nextChar === '\n') index++;
+      } else {
+        line += char;
+      }
+    }
+
+    return line;
+  }
+
+  function countDelimiterOutsideQuotes(line, delimiter) {
+    let count = 0;
+    let inQuotes = false;
+
+    for (let index = 0; index < line.length; index++) {
+      const char = line[index];
+      const nextChar = line[index + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          index++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (!inQuotes && char === delimiter) {
+        count++;
+      }
+    }
+
+    return count;
   }
 
   function processData(rows, fileName) {
