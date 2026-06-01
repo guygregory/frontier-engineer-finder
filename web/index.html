@@ -1369,6 +1369,10 @@
 
   function generateCSV(headers, rows) {
     const escapeField = (field) => {
+      if (/^(?:[=+\-@\t]|\s+[=+\-@])/.test(field)) {
+        field = "'" + field;
+      }
+
       // If field contains comma, quote, or newline, wrap in quotes and escape quotes
       if (field.includes(',') || field.includes('"') || field.includes('\n')) {
         return '"' + field.replace(/"/g, '""') + '"';
