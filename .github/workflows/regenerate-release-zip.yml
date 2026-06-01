@@ -26,7 +26,6 @@ jobs:
               ("web/index.html", "index.html"),
               ("data/SampleTrainings.csv", "SampleTrainings.csv"),
               ("img/SampleScreenshot.png", "SampleScreenshot.png"),
-              ("src/FrontierEngineer.ipynb", "FrontierEngineer.ipynb"),
           ]
 
           missing = [src for src, _ in files if not os.path.isfile(src)]
