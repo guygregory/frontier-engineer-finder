@@ -1,2 +1,2 @@
-pandas
-faker
+pandas==3.0.3
+Faker==40.19.1
