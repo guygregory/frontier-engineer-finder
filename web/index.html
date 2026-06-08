@@ -181,7 +181,7 @@
     gap: 16px;
   }
 
-  .results-grid .panel:nth-last-child(-n+3) {
+  .results-grid .panel:nth-last-child(-n+2) {
     grid-column: 1 / -1;
   }
 
@@ -808,30 +808,6 @@
         </div>
       </div>
 
-      <!-- Table: Fabric Analytics Engineer Associate -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="header-left">
-            <h3>Learners with Fabric Analytics Engineer Associate certification</h3>
-            <span class="badge green" id="badgeFabric">0</span>
-          </div>
-          <button class="export-btn" data-table-id="tableFabric" data-table-name="fabric-analytics-engineer-certs">Export to .csv</button>
-        </div>
-        <div class="panel-body">
-          <table class="aligned-certs">
-            <colgroup>
-              <col style="width: 22%;">
-              <col style="width: 33%;">
-              <col style="width: 28%;">
-              <col style="width: 17%;">
-            </colgroup>
-            <thead><tr><th>Name</th><th>Corp Email</th><th>Certification</th><th>Expiration Date</th></tr></thead>
-            <tbody id="tableFabric"></tbody>
-          </table>
-          <div class="empty-state" id="emptyFabric">No learners found</div>
-        </div>
-      </div>
-
       <!-- Table 4: At Risk -->
       <div class="panel">
         <div class="panel-header">
@@ -1168,21 +1144,8 @@
     const cutoff = new Date(today);
     cutoff.setMonth(cutoff.getMonth() + 6);
 
-    const FABRIC_CERT = 'Microsoft Certified: Fabric Analytics Engineer Associate';
-
-    // Rows considered for "at risk": the target certs plus Fabric Analytics Engineer Associate
-    const atRiskSource = rows.filter(r =>
-      (AZURE_AI_CERTS.includes(r.TrainingTitle) ||
-        r.TrainingTitle === 'GitHub Copilot' ||
-        r.TrainingTitle === 'Microsoft Certified: Agentic AI Business Solutions Architect' ||
-        r.TrainingTitle === FABRIC_CERT) &&
-      r.ActivationStatus === 'Active' &&
-      r.TrainingType === 'Certification' &&
-      r.Email && r.Email.trim() !== ''
-    );
-
     const atRisk = [];
-    for (const r of atRiskSource) {
+    for (const r of filtered) {
       if (!r.ExpirationDate) continue;
       const exp = new Date(r.ExpirationDate);
       if (isNaN(exp.getTime())) continue;
@@ -1197,23 +1160,6 @@
       }
     }
     atRisk.sort((a, b) => a.expDate - b.expDate);
-
-    // Fabric Analytics Engineer Associate certification holders
-    const fabric = [];
-    for (const r of rows) {
-      if (r.TrainingTitle === FABRIC_CERT &&
-          r.ActivationStatus === 'Active' &&
-          r.TrainingType === 'Certification' &&
-          r.Email && r.Email.trim() !== '') {
-        fabric.push({
-          name: `${(r.IndividualFirstName || '')} ${(r.IndividualLastName || '')}`.trim(),
-          email: r.CorpEmail || '',
-          cert: r.TrainingTitle,
-          expDate: r.ExpirationDate ? new Date(r.ExpirationDate) : null
-        });
-      }
-    }
-    fabric.sort((a, b) => a.name.localeCompare(b.name));
 
     // Unique learners with 1 of 3 / 2 of 3
     const unique1of3 = new Set(oneOf3.map(r => r.email)).size;
@@ -1240,10 +1186,6 @@
     renderTable('table1of3', 'empty1of3', 'badge1of3', oneOf3, r =>
       `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.cert))}</td><td>${r.expDate ? formatDate(r.expDate) : ''}</td>`,
       unique1of3
-    );
-
-    renderTable('tableFabric', 'emptyFabric', 'badgeFabric', fabric, r =>
-      `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.email)}</td><td>${escapeHtml(shortCert(r.cert))}</td><td>${r.expDate ? formatDate(r.expDate) : ''}</td>`
     );
 
     renderTable('tableAtRisk', 'emptyAtRisk', 'badgeAtRisk', atRisk, r =>
