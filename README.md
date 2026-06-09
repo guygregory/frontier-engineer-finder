@@ -4,6 +4,11 @@ A simple, in-browser tool that scans your Microsoft Partner Center training data
 
 ![Sample dashboard](img/SampleScreenshot.png)
 
+| 🎥 Frontier Transformation Engineer Finder - Demo Video |
+|---|
+| [![Watch the demo](https://img.youtube.com/vi/_zs3BcEI9ik/hqdefault.jpg)](https://aka.ms/FrontierEngineerFinder/Video) |
+| [Watch on YouTube ↗](https://aka.ms/FrontierEngineerFinder/Video) |
+
 ## What it does
 
 The tool looks for learners who hold (or are close to holding) all three of these active certifications:
