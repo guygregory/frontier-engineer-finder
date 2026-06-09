@@ -8,11 +8,13 @@ A simple, in-browser tool that scans your Microsoft Partner Center training data
 
 The tool looks for learners who hold (or are close to holding) all three of these active certifications:
 
-- **Microsoft Certified: Azure AI Engineer Associate** *(or the newer Azure AI Apps and Agents Developer Associate)*
-- **GitHub Copilot**
-- **Microsoft Certified: Agentic AI Business Solutions Architect**
+- **GitHub Copilot** (GH-300)
+- **Agentic AI Business Solution Architect** (AB-100 + pre-reqs)
+- **Developing AI Apps and Agents on Azure** (AI-103) - or - **Azure AI Engineer Associate*** (AI-102)
+ 
+\* Azure AI Engineer Associate will retire on June 30, 2026. The certification cannot be earned or renewed after this date, but the certification will count if still active on the learner's transcript.
 
-It then shows you four ready-to-use views:
+The tool shows you four ready-to-use views:
 
 1. **Learners with all 3** — Certification Ready.
 2. **Learners with 2 of 3** — who they are, and which certification they still need.
@@ -21,22 +23,22 @@ It then shows you four ready-to-use views:
 
 Each panel has an **Export to .csv** button so you can drop the list straight into Excel or send a mail-merge email.
 
-| 🎥 Frontier Transformation Engineer Finder - Demo Video |
-|---|
-| [![Watch the demo](https://img.youtube.com/vi/_zs3BcEI9ik/hqdefault.jpg)](https://aka.ms/FrontierEngineerFinder/Video) |
-| [Watch on YouTube ↗](https://aka.ms/FrontierEngineerFinder/Video) |
-
 ## Try it instantly with the sample data
 
 No installation, no sign-in.
 
-1. **Download this repo** (green **Code** button on GitHub → *Download ZIP* → unzip), or grab the prepackaged [`releases/FrontierEngineer.zip`](releases/FrontierEngineer.zip).
+1. **Download this repo** (green **Code** button on GitHub → *Download ZIP* → unzip), or grab the prepackaged [`releases/FrontierEngineer.zip`](https://aka.ms/FrontierEngineerFinder/Download).
 2. **Double-click `web/index.html`** — it opens in your default browser (Edge, Chrome, etc.).
 3. **Drag `data/SampleTrainings.csv`** onto the upload area (or click *Upload file* and pick it).
 
 The sample is synthetic data for a fictional partner *Contoso*. You should see **5 learners with all 3**, **103 with 2 of 3**, and **1,071 with 1 of 3**.
 
 ## Use it with your real Partner Center data
+
+| 🎥 Frontier Transformation Engineer Finder - Demo Video |
+|---|
+| [![Watch the demo](https://img.youtube.com/vi/_zs3BcEI9ik/hqdefault.jpg)](https://aka.ms/FrontierEngineerFinder/Video) |
+| [Watch on YouTube ↗](https://aka.ms/FrontierEngineerFinder/Video) |
 
 1. Go to **[Partner Center Insights → Downloads Hub](https://partner.microsoft.com/en-us/dashboard/insights/analytics/downloadshub)**.
 2. Sign in with a **[Global Admin](https://learn.microsoft.com/partner-center/account-settings/permissions-overview#global-admin-role)** account.
