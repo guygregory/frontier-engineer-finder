@@ -10,10 +10,8 @@ The tool looks for learners who hold (or are close to holding) all three of thes
 
 - **GitHub Copilot** (GH-300)
 - **Agentic AI Business Solution Architect** (AB-100 + pre-reqs)
-- **Developing AI Apps and Agents on Azure** (AI-103) - or - **Azure AI Engineer Associate*** (AI-102)
+- **Developing AI Apps and Agents on Azure** (AI-103) - or - **Azure AI Engineer Associate**[^1] (AI-102)
  
-\* Azure AI Engineer Associate will retire on June 30, 2026. The certification cannot be earned or renewed after this date, but the certification will count if still active on the learner's transcript.
-
 The tool shows you four ready-to-use views:
 
 1. **Learners with all 3** — Certification Ready.
@@ -55,3 +53,5 @@ The sample is synthetic data for a fictional partner *Contoso*. You should see *
 ## License
 
 See [LICENSE](LICENSE).
+
+[^1]: Azure AI Engineer Associate will retire on June 30, 2026. The certification cannot be earned or renewed after this date, but the certification will count if still active on the learner's transcript.
